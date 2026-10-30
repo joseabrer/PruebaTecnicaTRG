@@ -1,0 +1,20 @@
+# Keep the build context small and, above all, keep Windows build artifacts (they contain absolute
+# paths of the machine that built them) out of the Linux image build.
+**/bin/
+**/obj/
+**/.vs/
+**/.git
+**/*.user
+**/.DS_Store
+
+# Not needed to build the image.
+test/
+PLAN_DE_TRABAJO.md
+GUION_EXPLICACION.md
+.claude/
+CLAUDE.md
+.marte-audits/
+.vscode/
+.env
+.env.*
+docker-compose*.yml
