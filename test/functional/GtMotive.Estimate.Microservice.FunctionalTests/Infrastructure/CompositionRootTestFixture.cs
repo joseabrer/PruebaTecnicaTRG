@@ -117,7 +117,7 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Infrastructure
             services.AddApiDependencies();
             services.AddLogging();
 
-            // The connection string is read lazily, when MongoDB is first used, which is after the container started.
+            // La cadena de conexión se lee de forma diferida, cuando se usa MongoDB por primera vez, que es después de arrancar el contenedor.
             services.Configure<MongoDbSettings>(settings =>
             {
                 settings.ConnectionString = _mongoContainer?.GetConnectionString() ?? _externalConnectionString;

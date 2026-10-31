@@ -36,7 +36,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
 
             await _useCase.Execute(new ListAvailableVehiclesInput());
 
-            // Today is 2026-10-30, so a vehicle manufactured on 2021-10-30 is the oldest one that still counts.
+            // Hoy es 2026-10-30, así que un vehículo fabricado el 2021-10-30 es el más antiguo que todavía cuenta.
             _vehicles.Verify(x => x.ListAvailable(new DateOnly(2021, 10, 30)), Times.Once);
         }
 

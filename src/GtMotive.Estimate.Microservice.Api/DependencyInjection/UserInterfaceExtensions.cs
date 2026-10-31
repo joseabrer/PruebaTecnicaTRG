@@ -17,8 +17,8 @@ namespace GtMotive.Estimate.Microservice.Api.DependencyInjection
         {
             ArgumentNullException.ThrowIfNull(services);
 
-            // Each presenter is registered both as itself and as the output port of its use case. They resolve to
-            // the same scoped instance, so what the use case writes to the port is what the handler gets back.
+            // Cada presenter se registra a la vez como él mismo y como el puerto de salida de su caso de uso. Los dos se resuelven a
+            // la misma instancia scoped, así que lo que el caso de uso escribe en el puerto es lo que recibe el manejador.
             services.AddScoped<CrearVehiculoPresentador>();
             services.AddScoped<ICreateVehicleOutputPort>(provider => provider.GetRequiredService<CrearVehiculoPresentador>());
 

@@ -98,7 +98,7 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
             var datos = cuerpo.RootElement.GetProperty("datos");
             datos.GetProperty("matricula").GetString().Should().Be("AB-123");
 
-            // A vehicle is always available when it is created or listed, so a status field would carry no information.
+            // Un vehículo siempre está disponible cuando se crea o se lista, así que un campo de estado no aportaría información.
             datos.TryGetProperty("estado", out _).Should().BeFalse();
         }
 

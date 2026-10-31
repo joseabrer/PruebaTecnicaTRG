@@ -71,7 +71,7 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Specs
 
             await accion.Should().ThrowAsync<VehicleTooOldException>();
 
-            // Nothing was stored: the same license plate can still be registered with an acceptable date.
+            // No se guardó nada: la misma matrícula todavía se puede registrar con una fecha aceptable.
             Modelo<VehiculoRespuesta>(await Enviar(NuevoVehiculo($"D-{sufijo}")), 201);
         }
 
@@ -81,7 +81,7 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Specs
             var sufijo = NuevoSufijo();
             var hoy = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            // Both were valid when they joined the fleet; one of them has since passed the five-year limit by a day.
+            // Los dos eran válidos cuando entraron en la flota; uno de ellos ha superado desde entonces el límite de cinco años por un día.
             var envejecido = Vehicle.Restore(Guid.NewGuid(), LicensePlate.Create($"E-{sufijo}"), "Seat", "Ibiza", hoy.AddYears(-5).AddDays(-1), VehicleStatus.Available);
             var enElLimite = Vehicle.Restore(Guid.NewGuid(), LicensePlate.Create($"F-{sufijo}"), "Seat", "Ibiza", hoy.AddYears(-5), VehicleStatus.Available);
             await Fixture.UsingRepository<IVehicleRepository>(async repositorio =>
@@ -95,7 +95,7 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Specs
             var cliente = $"cliente-{sufijo}";
             (await Enviar(new AlquilarVehiculoSolicitud { VehiculoId = envejecido.Id, ClienteId = cliente })).Should().BeOfType<ConflictObjectResult>();
 
-            // The refused rental left nothing behind: the person can still rent a vehicle that is within the limit.
+            // El alquiler rechazado no dejó rastro: la persona todavía puede alquilar un vehículo que esté dentro del límite.
             Modelo<AlquilerRespuesta>(await Enviar(new AlquilarVehiculoSolicitud { VehiculoId = enElLimite.Id, ClienteId = cliente }), 201);
         }
 

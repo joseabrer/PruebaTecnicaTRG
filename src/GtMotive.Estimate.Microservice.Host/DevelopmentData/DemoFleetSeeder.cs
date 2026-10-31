@@ -55,7 +55,7 @@ namespace GtMotive.Estimate.Microservice.Host.DevelopmentData
             }
             catch (LicensePlateAlreadyRegisteredException)
             {
-                // It was loaded by a previous run: nothing to do.
+                // Ya la cargó una ejecución anterior: no hay nada que hacer.
                 return 0;
             }
         }

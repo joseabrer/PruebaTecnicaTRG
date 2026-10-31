@@ -22,7 +22,7 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
             AppSettings settings,
             IConfiguration configuration)
         {
-            // Register the Swagger generator, defining 1 or more Swagger documents
+            // Registra el generador de Swagger, definiendo uno o más documentos Swagger
             services.AddSwaggerGen(
                 options =>
                 {
@@ -35,7 +35,7 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
 
                     if (configuration.GetValue<string>("Swagger:EnableTryIt") == "Yes")
                     {
-                        // Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
+                        // Define el esquema OAuth2.0 en uso (por ejemplo, Implicit Flow)
                         options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                         {
                             Type = SecuritySchemeType.OAuth2,
@@ -80,7 +80,7 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
         {
             ArgumentNullException.ThrowIfNull(pathBase);
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            // Habilita el middleware que sirve el Swagger generado como un endpoint JSON.
             app.UseSwagger(options =>
             {
                 if (!pathBase.IsDefault)
@@ -101,7 +101,7 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
                 }
             });
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            // Habilita el middleware que sirve swagger-ui (HTML, JS, CSS, etc.), indicando el endpoint JSON de Swagger.
             var url = pathBase.IsDefault
                 ? $"/swagger/v{AssemblyVersion}/swagger.json"
                 : $"{pathBase.CurrentWithoutTrailingSlash}/swagger/v{AssemblyVersion}/swagger.json";
@@ -131,7 +131,7 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
                 return tipo.Name;
             }
 
-            // RespuestaApi<List<VehiculoRespuesta>> is published as RespuestaApiDeListDeVehiculoRespuesta.
+            // RespuestaApi<List<VehiculoRespuesta>> se publica como RespuestaApiDeListDeVehiculoRespuesta.
             var nombre = tipo.Name[..tipo.Name.IndexOf('`', StringComparison.Ordinal)];
             var argumentos = tipo.GetGenericArguments().Select(NombreDelEsquema);
 

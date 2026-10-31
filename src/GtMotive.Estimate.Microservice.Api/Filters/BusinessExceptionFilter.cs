@@ -32,8 +32,8 @@ namespace GtMotive.Estimate.Microservice.Api.Filters
             }
             else
             {
-                // The message of an unexpected exception can reveal internal details (hosts, ports, driver internals),
-                // so it is only logged, never returned to the client.
+                // El mensaje de una excepción inesperada puede revelar detalles internos (hosts, puertos, el driver),
+                // así que solo se registra en el log y nunca se devuelve al cliente.
                 var respuesta = new RespuestaApi<object>(
                     Mensajes.TituloErrorInterno,
                     [Mensajes.DetalleErrorInterno]);

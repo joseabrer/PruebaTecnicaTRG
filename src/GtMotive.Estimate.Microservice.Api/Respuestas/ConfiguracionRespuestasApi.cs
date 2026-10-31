@@ -79,9 +79,9 @@ namespace GtMotive.Estimate.Microservice.Api.Respuestas
 
         private static List<string> MensajesDelCampo(string clave, ModelStateEntry entrada)
         {
-            // The error of a JSON that cannot be read is keyed by its JSON path ($.fechaFabricacion) and carries
-            // a text the framework generates in English that shows internals (paths, positions): it is replaced.
-            // The replacement does not say which field it is, so the field is named in front of it.
+            // El error de un JSON que no se puede leer viene con la ruta del JSON como clave ($.fechaFabricacion) y trae
+            // un texto en inglés que genera el framework y que muestra detalles internos (rutas, posiciones): se sustituye.
+            // El texto de sustitución no dice de qué campo se trata, así que se pone el nombre del campo delante.
             var esErrorDeJson = clave.StartsWith('$');
             var campo = clave.TrimStart('$', '.');
 

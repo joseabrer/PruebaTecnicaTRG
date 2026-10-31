@@ -27,14 +27,14 @@ namespace GtMotive.Estimate.Microservice.Api.Filters
                 mensaje,
                 [problema.Detail ?? mensaje]);
 
-            // The body is no longer a problem document, so it goes out as plain JSON.
+            // El cuerpo ya no es un documento de problema, así que sale como JSON normal.
             resultado.ContentTypes.Clear();
             resultado.Value = respuesta;
         }
 
         public void OnResultExecuted(ResultExecutedContext context)
         {
-            // Nothing to do once the result has been written.
+            // No hay nada que hacer una vez escrito el resultado.
         }
     }
 }

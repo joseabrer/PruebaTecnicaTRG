@@ -1,5 +1,5 @@
-# Keep the build context small and, above all, keep Windows build artifacts (they contain absolute
-# paths of the machine that built them) out of the Linux image build.
+# Mantener pequeño el contexto de construcción y, sobre todo, dejar fuera los artefactos de compilación de Windows (contienen rutas absolutas
+# de la máquina que los generó) de la construcción de la imagen de Linux.
 **/bin/
 **/obj/
 **/.vs/
@@ -7,7 +7,7 @@
 **/*.user
 **/.DS_Store
 
-# Not needed to build the image.
+# No hacen falta para construir la imagen.
 test/
 PLAN_DE_TRABAJO.md
 GUION_EXPLICACION.md

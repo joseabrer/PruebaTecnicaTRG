@@ -13,12 +13,12 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.Telemetry
 
         public void TrackEvent(string eventName, IDictionary<string, string> properties = null, IDictionary<string, double> metrics = null)
         {
-            // Use for testing
+            // Para usar en las pruebas
         }
 
         public void TrackMetric(string name, double value, IDictionary<string, string> properties = null)
         {
-            // Use for testing
+            // Para usar en las pruebas
         }
     }
 }

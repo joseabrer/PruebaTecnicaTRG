@@ -24,7 +24,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = WebApplication.CreateBuilder();
 
-// Configuration.
+// Configuración.
 if (!builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddJsonFile("serilogsettings.json", optional: false, reloadOnChange: true);
@@ -36,7 +36,7 @@ if (!builder.Environment.IsDevelopment())
     builder.Configuration.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
 }
 
-// Logging configuration for host bootstrapping.
+// Configuración del logging para el arranque del host.
 builder.Logging.ClearProviders();
 
 Log.Logger = new LoggerConfiguration()
@@ -47,7 +47,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Add services to the container.
+// Añade los servicios al contenedor.
 if (!builder.Environment.IsDevelopment())
 {
     builder.Services.AddApplicationInsightsTelemetry(builder.Configuration);
@@ -69,7 +69,7 @@ builder.Services.AddControllers(ApiConfiguration.ConfigureControllers)
 builder.Services.AddBaseInfrastructure(builder.Environment.IsDevelopment())
     .AddMongoDb();
 
-// Demo data: a small fleet, so the API can be explored right away. Development only; SeedDemoFleet=false turns it off.
+// Datos de demostración: una flota pequeña para poder explorar la API desde el primer momento. Solo en Development; SeedDemoFleet=false lo desactiva.
 if (builder.Environment.IsDevelopment() && builder.Configuration.GetValue("SeedDemoFleet", defaultValue: true))
 {
     builder.Services.AddHostedService<DemoFleetSeeder>();
@@ -80,9 +80,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
                                ForwardedHeaders.XForwardedProto;
 
-    // Only loopback proxies are allowed by default.
-    // Clear that restriction because forwarders are enabled by explicit
-    // configuration.
+    // Por defecto solo se permiten proxies de loopback.
+    // Se elimina esa restricción porque los reenvíos se activan por
+    // configuración explícita.
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
@@ -104,7 +104,7 @@ builder.Services.AddSwagger(appSettings, builder.Configuration);
 
 var app = builder.Build();
 
-// Logging configuration.
+// Configuración del logging.
 Log.Logger = builder.Environment.IsDevelopment() ?
     new LoggerConfiguration()
         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

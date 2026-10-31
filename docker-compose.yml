@@ -1,10 +1,10 @@
-# Local run of the microservice and its database. The only requirement is Docker:
+# Ejecución local del microservicio y de su base de datos. El único requisito es Docker:
 #
 #   docker compose up --build
 #
-# API and Swagger:  http://localhost:8080/swagger
-#   - If the port 8080 is taken: API_PORT=9090 docker compose up --build
-# Reset the data:   docker compose down -v
+# API y Swagger:  http://localhost:8080/swagger
+#   - Si el puerto 8080 está ocupado: API_PORT=9090 docker compose up --build
+# Borrar los datos:  docker compose down -v
 
 name: gtmotive-renting
 
@@ -13,8 +13,8 @@ services:
     image: mongo:8.0
     volumes:
       - mongo-data:/data/db
-    # Its port is not published on the host on purpose: it avoids clashes with a MongoDB that may
-    # already be installed there. The API reaches it through the compose network (host "mongo").
+    # Su puerto no se publica en el host a propósito: evita choques con un MongoDB que ya pueda
+    # estar instalado ahí. La API llega a él por la red del compose (host "mongo").
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand('ping').ok === 1 ? 0 : 1)"]
       interval: 5s
@@ -30,12 +30,12 @@ services:
       mongo:
         condition: service_healthy
     environment:
-      # Development is the profile that does not need Azure (Key Vault, Application Insights).
+      # Development es el perfil que no necesita Azure (Key Vault, Application Insights).
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: "8080"
       MongoDb__ConnectionString: mongodb://mongo:27017/?serverSelectionTimeoutMS=5000
       MongoDb__MongoDbDatabaseName: rental
-    # Published only on this machine (127.0.0.1): the API has no authentication, so it must not be reachable from the network.
+    # Publicado solo en esta máquina (127.0.0.1): la API no tiene autenticación, así que no debe ser accesible desde la red.
     ports:
       - "127.0.0.1:${API_PORT:-8080}:8080"
 

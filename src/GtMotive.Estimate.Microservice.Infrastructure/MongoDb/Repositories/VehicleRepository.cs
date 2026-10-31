@@ -25,7 +25,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
             }
             catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
             {
-                // The unique index on the license plate is what makes this safe under concurrency.
+                // El índice único sobre la matrícula es lo que hace esto seguro con peticiones simultáneas.
                 throw new LicensePlateAlreadyRegisteredException($"Ya existe un vehículo con la matrícula {vehicle.LicensePlate.Value}.");
             }
         }
@@ -47,7 +47,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
         {
             var collection = await _mongo.GetVehicles();
 
-            // The manufacture date is stored as yyyy-MM-dd text, so comparing the text compares the dates.
+            // La fecha de fabricación se guarda como texto yyyy-MM-dd, así que comparar el texto equivale a comparar las fechas.
             var filter = Builders<VehicleDocument>.Filter.And(
                 Builders<VehicleDocument>.Filter.Eq(x => x.Status, VehicleStatus.Available),
                 Builders<VehicleDocument>.Filter.Gte(x => x.ManufactureDate, VehicleDocument.FormatDate(oldestManufactureDate)));
@@ -66,8 +66,8 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
 
             var collection = await _mongo.GetVehicles();
 
-            // Compare-and-swap: only applies if the stored status is different from the new one, so of two
-            // concurrent requests that loaded the same vehicle only one can change it.
+            // Compare-and-swap: solo se aplica si el estado guardado es distinto del nuevo, así que de dos
+            // peticiones simultáneas que cargaron el mismo vehículo solo una puede cambiarlo.
             var result = await collection.UpdateOneAsync(
                 x => x.Id == vehicle.Id && x.Status != vehicle.Status,
                 Builders<VehicleDocument>.Update.Set(x => x.Status, vehicle.Status));

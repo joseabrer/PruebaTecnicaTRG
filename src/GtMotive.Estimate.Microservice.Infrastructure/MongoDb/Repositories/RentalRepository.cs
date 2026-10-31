@@ -24,7 +24,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
             }
             catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
             {
-                // The partial unique index on the renter (active rentals only) is what makes this safe under concurrency.
+                // El índice único parcial sobre el cliente (solo alquileres activos) es lo que hace esto seguro con peticiones simultáneas.
                 throw new RenterAlreadyHasActiveRentalException($"El cliente {rental.RenterId.Value} ya tiene un vehículo alquilado.");
             }
         }
@@ -58,8 +58,8 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb.Repositories
 
             var collection = await _mongo.GetRentals();
 
-            // Compare-and-swap: only applies while the stored rental is still active, so a rental cannot
-            // be closed twice by two concurrent requests.
+            // Compare-and-swap: solo se aplica mientras el alquiler guardado siga activo, así que un alquiler no puede
+            // cerrarse dos veces por dos peticiones simultáneas.
             var result = await collection.UpdateOneAsync(
                 x => x.Id == rental.Id && x.Active,
                 Builders<RentalDocument>.Update

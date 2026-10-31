@@ -16,7 +16,7 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Infrastructure
 
         public IConfiguration Configuration { get; } = configuration;
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // El runtime llama a este método. Úsalo para configurar el pipeline de peticiones HTTP.
         public static void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
@@ -30,8 +30,8 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Infrastructure
             });
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        // El runtime llama a este método. Úsalo para añadir los servicios al contenedor.
+        // Para más información sobre cómo configurar la aplicación, visita https://go.microsoft.com/fwlink/?LinkID=398940
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Startup).GetTypeInfo().Assembly));

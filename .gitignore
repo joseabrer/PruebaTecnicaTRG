@@ -349,7 +349,7 @@ azure_env*.ps1
 PLAN_DE_TRABAJO.md
 GUION_EXPLICACION.md
 
-# Local, private or tooling files that must never be committed
+# Ficheros locales, privados o de herramientas que nunca deben subirse
 .claude/
 CLAUDE.md
 .marte-audits/
@@ -361,6 +361,6 @@ docker-compose.override.yml
 **/appsettings.*.local.json
 Thumbs.db
 
-# The statement of the test and the original template archive live outside the repository
+# El enunciado de la prueba y el archivo original de la plantilla están fuera del repositorio
 *.zip
 Instrucciones*.pdf

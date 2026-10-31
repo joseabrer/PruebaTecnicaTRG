@@ -41,7 +41,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
                 var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
                 vehicle.Rent(today);
 
-                // Claim the vehicle first: the update is atomic, so only one request can win it.
+                // Se reclama primero el vehículo: la actualización es atómica, así que solo una petición puede quedárselo.
                 await _vehicleRepository.Update(vehicle);
 
                 var rental = await StartRental(vehicle, input.RenterId);
@@ -76,7 +76,7 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle
             }
             catch (Exception)
             {
-                // Compensation: the rental could not be stored, so release the vehicle that was claimed.
+                // Compensación: no se pudo guardar el alquiler, así que se libera el vehículo que se había reclamado.
                 vehicle.Return();
                 await _vehicleRepository.Update(vehicle);
                 throw;

@@ -34,8 +34,8 @@ namespace GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle
                 rental.Return(_timeProvider.GetUtcNow());
                 vehicle.Return();
 
-                // Close the rental first: if something fails afterwards the vehicle stays unavailable,
-                // which is safer than offering it again while the rental is still open.
+                // Se cierra primero el alquiler: si algo falla después, el vehículo queda no disponible,
+                // que es más seguro que ofrecerlo de nuevo con el alquiler todavía abierto.
                 await _rentalRepository.Update(rental);
                 await _vehicleRepository.Update(vehicle);
 

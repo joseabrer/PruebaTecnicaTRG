@@ -19,7 +19,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb
 
         private static readonly Lock BsonLock = new();
 
-        // Version 3 of the driver leaves the Guid representation unspecified, so it has to be set explicitly.
+        // La versión 3 del driver deja sin especificar la representación del Guid, así que hay que fijarla de forma explícita.
         private static readonly GuidSerializer StandardGuid = new(GuidRepresentation.Standard);
         private static bool _bsonClassesRegistered;
 
@@ -100,9 +100,9 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb
             }
         }
 
-        // The indexes are what makes the rules safe under concurrency, so they are created on first use
-        // (idempotent) instead of in a hosted service: that way they also exist when there is no host,
-        // for instance in the functional tests. A failed attempt is retried on the next call.
+        // Los índices son lo que hace seguras las reglas con peticiones simultáneas, así que se crean en el primer uso
+        // (son idempotentes) en vez de en un servicio alojado: así también existen cuando no hay host,
+        // por ejemplo en los tests funcionales. Un intento fallido se reintenta en la siguiente llamada.
         private Task EnsureIndexes()
         {
             lock (_indexesLock)
@@ -132,7 +132,7 @@ namespace GtMotive.Estimate.Microservice.Infrastructure.MongoDb
 
             var rentals = _database.GetCollection<RentalDocument>(RentalsCollectionName);
 
-            // A person can have only one active rental: unique per renter, but only among the active ones.
+            // Una persona solo puede tener un alquiler activo: único por cliente, pero solo entre los activos.
             await rentals.Indexes.CreateOneAsync(
                 new CreateIndexModel<RentalDocument>(
                     Builders<RentalDocument>.IndexKeys.Ascending(x => x.RenterId),

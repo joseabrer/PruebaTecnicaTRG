@@ -122,7 +122,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
         [Fact]
         public async Task ExecuteReportsConflictAndDoesNotClaimTheVehicleWhenItIsOlderThanTheMaximumAge()
         {
-            // Five years and one day before Now: it was valid when it joined the fleet, but it is not any more.
+            // Cinco años y un día antes de Now: era válido cuando entró en la flota, pero ya no lo es.
             var vehicle = NewVehicle(VehicleStatus.Available, new DateOnly(2021, 10, 29));
             _vehicles.Setup(x => x.GetById(vehicle.Id)).ReturnsAsync(vehicle);
 

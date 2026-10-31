@@ -1,6 +1,6 @@
-# Build context: the repository root, where docker-compose.yml lives.
+# Contexto de construcción: la raíz del repositorio, donde está docker-compose.yml.
 #   docker build -f src/GtMotive.Estimate.Microservice.Host/Dockerfile .
-# It only needs nuget.org: there is no private feed and no credentials.
+# Solo necesita nuget.org: no hay ningún feed privado ni credenciales.
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
@@ -9,8 +9,8 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Restore first, with only the files that define the dependency graph, so this layer stays cached
-# until a package or a project reference changes.
+# Primero se restaura, con solo los ficheros que definen el grafo de dependencias, para que esta capa siga en caché
+# hasta que cambie un paquete o una referencia entre proyectos.
 COPY global.json Directory.Build.props Directory.Build.targets NuGet.config ./
 COPY src/GtMotive.Estimate.Microservice.Host/GtMotive.Estimate.Microservice.Host.csproj src/GtMotive.Estimate.Microservice.Host/
 COPY src/GtMotive.Estimate.Microservice.Api/GtMotive.Estimate.Microservice.Api.csproj src/GtMotive.Estimate.Microservice.Api/
