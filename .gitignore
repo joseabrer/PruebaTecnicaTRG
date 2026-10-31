@@ -348,6 +348,7 @@ azure_env*.ps1
 # Plan de trabajo local (no subir al repo)
 PLAN_DE_TRABAJO.md
 GUION_EXPLICACION.md
+README_PROPIO.md
 
 # Ficheros locales, privados o de herramientas que nunca deben subirse
 .claude/
