@@ -125,8 +125,12 @@ csharp_preserve_single_line_blocks = true
 dotnet_analyzer_diagnostic.severity = error
 #IDE
 dotnet_diagnostic.IDE0022.severity = silent
+dotnet_diagnostic.IDE0046.severity = silent
 dotnet_diagnostic.IDE0058.severity = none
 dotnet_diagnostic.IDE0130.severity = silent
+dotnet_diagnostic.IDE0270.severity = silent
+dotnet_diagnostic.IDE0290.severity = silent
+dotnet_diagnostic.JSON002.severity = silent
 #Code Analysis 
 dotnet_diagnostic.CA1040.severity = none
 dotnet_diagnostic.CA1303.severity = none

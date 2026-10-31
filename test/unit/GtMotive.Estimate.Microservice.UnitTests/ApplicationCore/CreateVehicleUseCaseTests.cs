@@ -51,7 +51,7 @@ namespace GtMotive.Estimate.Microservice.UnitTests.ApplicationCore
         [Fact]
         public async Task ExecuteRejectsTheVehicleWhenTheManufactureDateIsInTheFuture()
         {
-            var act = () => _useCase.Execute(NewInput(new DateOnly(2026, 10, 31)));
+            var act = () => _useCase.Execute(NewInput(new DateOnly(2026, 12, 31)));
 
             await act.Should().ThrowAsync<ManufactureDateInFutureException>();
             _vehicles.Verify(x => x.Add(It.IsAny<Vehicle>()), Times.Never);
