@@ -1,4 +1,47 @@
 # Sample Implementation of Hexagonal Architecture in a Microservice
+
+## Cómo ejecutar el microservicio de renting
+
+Microservicio REST (.NET 9 y MongoDB) que gestiona una flota de vehículos de renting: alta de vehículos, listado de los disponibles, alquiler y devolución. Está construido sobre la plantilla de arquitectura hexagonal de esta prueba; su documentación sigue más abajo, sin cambios.
+
+### Ejecutarlo
+
+Solo hace falta **Docker con Compose**. No hay que instalar .NET ni MongoDB.
+
+```bash
+docker compose up --build
+```
+
+- API y Swagger: <http://localhost:8080/swagger> (solo accesible desde la propia máquina).
+- Al arrancar se cargan 5 vehículos de demostración, para poder listar y alquilar desde el primer momento.
+- Si el puerto 8080 está ocupado: `API_PORT=9090 docker compose up --build` (en PowerShell: `$env:API_PORT=9090; docker compose up --build`).
+- Detener y borrar los datos: `docker compose down -v`.
+
+### Endpoints
+
+| Acción | Endpoint | Respuestas |
+|---|---|---|
+| Crear un vehículo | `POST /api/vehiculos` | 201 · 400 · 409 |
+| Listar los disponibles | `GET /api/vehiculos/disponibles` | 200 |
+| Alquilar un vehículo | `POST /api/alquileres` | 201 · 400 · 404 · 409 |
+| Devolver el vehículo | `POST /api/alquileres/{alquilerId}/devolucion` | 200 · 404 · 409 |
+
+Crear un vehículo recibe `matricula`, `marca`, `modelo` y `fechaFabricacion`; alquilar recibe `vehiculoId` y `clienteId`. Toda respuesta viaja en el mismo sobre, con los campos `exito`, `mensaje`, `datos` y `errores`.
+
+Reglas: la flota no admite vehículos fabricados hace más de 5 años, y una persona no puede tener más de un vehículo alquilado a la vez.
+
+### Tests
+
+```bash
+dotnet test src/microservice.sln
+```
+
+Hace falta el SDK de .NET 9 y, para los funcionales, Docker en marcha. En Windows conviene clonar el repositorio en una ruta corta (por ejemplo `C:\src`): el build genera rutas largas y Windows limita las rutas a 260 caracteres.
+
+Son 34 pruebas: 19 unitarias, 11 de infraestructura y 4 funcionales.
+
+---
+
 ## Index
 ### [Introduction](#introduction)
 ### [Clean Architecture](#clean-architecture)
