@@ -1,5 +1,6 @@
 ﻿using System;
 using GtMotive.Estimate.Microservice.Api.Models;
+using GtMotive.Estimate.Microservice.Api.Respuestas;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.ReturnVehicle;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,9 @@ namespace GtMotive.Estimate.Microservice.Api.UseCases.ReturnVehicle
         {
             ArgumentNullException.ThrowIfNull(response);
 
-            ActionResult = new OkObjectResult(new AlquilerRespuesta(response.Rental));
+            var alquiler = new AlquilerRespuesta(response.Rental);
+
+            ActionResult = new OkObjectResult(new RespuestaApi<AlquilerRespuesta>(alquiler, Mensajes.VehiculoDevuelto));
         }
 
         public void NotFoundHandle(string message)

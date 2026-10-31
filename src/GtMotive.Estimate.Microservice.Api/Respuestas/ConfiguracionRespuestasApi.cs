@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GtMotive.Estimate.Microservice.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace GtMotive.Estimate.Microservice.Api.Respuestas
 {
@@ -68,38 +70,28 @@ namespace GtMotive.Estimate.Microservice.Api.Respuestas
 
         private static BadRequestObjectResult CrearRespuestaSolicitudInvalida(ActionContext contexto)
         {
-            var errores = new Dictionary<string, string[]>();
+            var errores = contexto.ModelState
+                .SelectMany(campo => MensajesDelCampo(campo.Key, campo.Value))
+                .ToList();
 
-            foreach (var campo in contexto.ModelState)
-            {
-                // The error of a JSON that cannot be read is keyed by its JSON path ($.fechaFabricacion) and carries
-                // a text the framework generates in English that shows internals (paths, positions): it is replaced.
-                var esErrorDeJson = campo.Key.StartsWith('$');
+            return new BadRequestObjectResult(new RespuestaApi<object>(Mensajes.TituloSolicitudInvalida, errores));
+        }
 
-                var mensajes = campo.Value.Errors
-                    .Select(error => esErrorDeJson || error.Exception is not null || string.IsNullOrWhiteSpace(error.ErrorMessage) ? Mensajes.ValorNoValido : error.ErrorMessage)
-                    .Distinct()
-                    .ToArray();
+        private static List<string> MensajesDelCampo(string clave, ModelStateEntry entrada)
+        {
+            // The error of a JSON that cannot be read is keyed by its JSON path ($.fechaFabricacion) and carries
+            // a text the framework generates in English that shows internals (paths, positions): it is replaced.
+            // The replacement does not say which field it is, so the field is named in front of it.
+            var esErrorDeJson = clave.StartsWith('$');
+            var campo = clave.TrimStart('$', '.');
 
-                if (mensajes.Length > 0)
-                {
-                    errores[campo.Key] = mensajes;
-                }
-            }
+            var mensajes = entrada.Errors
+                .Select(error => esErrorDeJson || error.Exception is not null || string.IsNullOrWhiteSpace(error.ErrorMessage) ? Mensajes.ValorNoValido : error.ErrorMessage)
+                .Distinct()
+                .Select(mensaje => esErrorDeJson && campo.Length > 0 ? $"{campo}: {mensaje}" : mensaje)
+                .ToList();
 
-            var problema = new ValidationProblemDetails(errores)
-            {
-                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-                Title = Mensajes.TituloSolicitudInvalida,
-                Status = StatusCodes.Status400BadRequest,
-                Detail = Mensajes.DetalleSolicitudInvalida,
-                Instance = contexto.HttpContext.Request.Path
-            };
-
-            return new BadRequestObjectResult(problema)
-            {
-                ContentTypes = { "application/problem+json" }
-            };
+            return mensajes;
         }
     }
 }

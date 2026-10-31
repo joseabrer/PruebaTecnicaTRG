@@ -21,6 +21,7 @@ namespace GtMotive.Estimate.Microservice.Api
             ArgumentNullException.ThrowIfNull(options);
 
             options.Filters.Add<BusinessExceptionFilter>();
+            options.Filters.Add<EnvolverProblemasFilter>();
             ConfiguracionRespuestasApi.ConfigurarMvc(options);
         }
 

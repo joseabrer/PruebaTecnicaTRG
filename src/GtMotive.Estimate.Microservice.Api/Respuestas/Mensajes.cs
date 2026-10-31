@@ -1,7 +1,7 @@
 ﻿namespace GtMotive.Estimate.Microservice.Api.Respuestas
 {
     /// <summary>
-    /// Todos los textos que la API envía a sus clientes, en un solo sitio: títulos y detalles de las respuestas de error
+    /// Todos los textos que la API envía a sus clientes, en un solo sitio: mensajes de éxito, títulos y detalles de las respuestas de error
     /// y mensajes de validación. Los controllers, presenters, filtros y clases de solicitud los reutilizan, así que un texto
     /// se escribe una sola vez y un error se lee siempre igual, venga de donde venga.
     /// </summary>
@@ -33,11 +33,6 @@
         public const string DetalleErrorInterno = "Ha ocurrido un error inesperado. Se ha registrado en el log.";
 
         /// <summary>
-        /// Detalle de una respuesta 400 causada por campos inválidos.
-        /// </summary>
-        public const string DetalleSolicitudInvalida = "Revisa los campos indicados y vuelve a intentarlo.";
-
-        /// <summary>
         /// Mensaje de validación de un campo obligatorio. {0} es el nombre del campo.
         /// </summary>
         public const string Obligatorio = "El campo {0} es obligatorio.";
@@ -56,5 +51,25 @@
         /// Mensaje para una petición que llega sin cuerpo.
         /// </summary>
         public const string CuerpoObligatorio = "Hay que enviar un cuerpo en la petición.";
+
+        /// <summary>
+        /// Mensaje de éxito al añadir un vehículo a la flota.
+        /// </summary>
+        public const string VehiculoCreado = "Vehículo creado correctamente.";
+
+        /// <summary>
+        /// Mensaje de éxito al listar los vehículos que se pueden alquilar.
+        /// </summary>
+        public const string VehiculosDisponiblesObtenidos = "Vehículos disponibles obtenidos correctamente.";
+
+        /// <summary>
+        /// Mensaje de éxito al alquilar un vehículo.
+        /// </summary>
+        public const string AlquilerCreado = "Alquiler creado correctamente.";
+
+        /// <summary>
+        /// Mensaje de éxito al devolver un vehículo.
+        /// </summary>
+        public const string VehiculoDevuelto = "Vehículo devuelto correctamente.";
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GtMotive.Estimate.Microservice.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -8,7 +9,8 @@ namespace GtMotive.Estimate.Microservice.Api.Respuestas
 {
     /// <summary>
     /// Convierte cada <see cref="RespuestasApiAttribute"/> en los metadatos ProducesResponseType que MVC y Swagger
-    /// entienden. Se ejecuta una sola vez, al arrancar la aplicación, para cada acción que tiene el atributo.
+    /// entienden. Se ejecuta una sola vez, al arrancar la aplicación, para cada acción que tiene el atributo. Todas las
+    /// respuestas se publican dentro del sobre <see cref="RespuestaApi{T}"/>, las de éxito y las de error.
     /// </summary>
     internal sealed class RespuestasApiConvencion : IApplicationModelConvention
     {
@@ -31,27 +33,28 @@ namespace GtMotive.Estimate.Microservice.Api.Respuestas
                 return;
             }
 
-            accion.Filters.Add(new ProducesResponseTypeAttribute(atributo.TipoRespuesta, atributo.CodigoExito));
+            var tipoDelSobre = typeof(RespuestaApi<>).MakeGenericType(atributo.TipoRespuesta);
+            accion.Filters.Add(new ProducesResponseTypeAttribute(tipoDelSobre, atributo.CodigoExito));
 
             if (atributo.SolicitudInvalida)
             {
-                AgregarProblema(accion, StatusCodes.Status400BadRequest);
+                AgregarError(accion, StatusCodes.Status400BadRequest);
             }
 
             if (atributo.NoEncontrado)
             {
-                AgregarProblema(accion, StatusCodes.Status404NotFound);
+                AgregarError(accion, StatusCodes.Status404NotFound);
             }
 
             if (atributo.Conflicto)
             {
-                AgregarProblema(accion, StatusCodes.Status409Conflict);
+                AgregarError(accion, StatusCodes.Status409Conflict);
             }
         }
 
-        private static void AgregarProblema(ActionModel accion, int codigo)
+        private static void AgregarError(ActionModel accion, int codigo)
         {
-            accion.Filters.Add(new ProducesResponseTypeAttribute(typeof(ProblemDetails), codigo));
+            accion.Filters.Add(new ProducesResponseTypeAttribute(typeof(RespuestaApi<object>), codigo));
         }
     }
 }

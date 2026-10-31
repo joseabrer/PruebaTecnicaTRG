@@ -1,5 +1,6 @@
 ﻿using System;
 using GtMotive.Estimate.Microservice.Api.Models;
+using GtMotive.Estimate.Microservice.Api.Respuestas;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.CreateVehicle;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,9 @@ namespace GtMotive.Estimate.Microservice.Api.UseCases.CreateVehicle
         {
             ArgumentNullException.ThrowIfNull(response);
 
-            ActionResult = new ObjectResult(new VehiculoRespuesta(response.Vehicle))
+            var vehiculo = new VehiculoRespuesta(response.Vehicle);
+
+            ActionResult = new ObjectResult(new RespuestaApi<VehiculoRespuesta>(vehiculo, Mensajes.VehiculoCreado))
             {
                 StatusCode = StatusCodes.Status201Created
             };

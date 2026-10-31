@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using GtMotive.Estimate.Microservice.Host.Configuration;
 using GtMotive.Estimate.Microservice.Host.Infrastructure.Swagger;
@@ -25,7 +26,7 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
             services.AddSwaggerGen(
                 options =>
                 {
-                    options.CustomSchemaIds(type => type.ToString());
+                    options.CustomSchemaIds(NombreDelEsquema);
                     options.SwaggerDoc($"v{AssemblyVersion}", new OpenApiInfo
                     {
                         Title = $"{AssemblyName} API",
@@ -121,6 +122,20 @@ namespace GtMotive.Estimate.Microservice.Host.DependencyInjection
                 });
 
             return app;
+        }
+
+        private static string NombreDelEsquema(Type tipo)
+        {
+            if (!tipo.IsGenericType)
+            {
+                return tipo.Name;
+            }
+
+            // RespuestaApi<List<VehiculoRespuesta>> is published as RespuestaApiDeListDeVehiculoRespuesta.
+            var nombre = tipo.Name[..tipo.Name.IndexOf('`', StringComparison.Ordinal)];
+            var argumentos = tipo.GetGenericArguments().Select(NombreDelEsquema);
+
+            return $"{nombre}De{string.Join("Y", argumentos)}";
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using GtMotive.Estimate.Microservice.Api.Models;
+using GtMotive.Estimate.Microservice.Api.Respuestas;
 using GtMotive.Estimate.Microservice.ApplicationCore.UseCases.RentVehicle;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,9 @@ namespace GtMotive.Estimate.Microservice.Api.UseCases.RentVehicle
         {
             ArgumentNullException.ThrowIfNull(response);
 
-            ActionResult = new ObjectResult(new AlquilerRespuesta(response.Rental))
+            var alquiler = new AlquilerRespuesta(response.Rental);
+
+            ActionResult = new ObjectResult(new RespuestaApi<AlquilerRespuesta>(alquiler, Mensajes.AlquilerCreado))
             {
                 StatusCode = StatusCodes.Status201Created
             };

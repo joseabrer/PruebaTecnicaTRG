@@ -35,9 +35,10 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
 
             respuesta.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             using var cuerpo = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
-            cuerpo.RootElement.GetProperty("title").GetString().Should().Be("Solicitud no válida");
-            LeerCampos(cuerpo.RootElement).Should().Contain("Marca");
-            LeerMensajes(cuerpo.RootElement).Should().Contain("El campo Marca es obligatorio.");
+            cuerpo.RootElement.GetProperty("exito").GetBoolean().Should().BeFalse();
+            cuerpo.RootElement.GetProperty("mensaje").GetString().Should().Be("Solicitud no válida");
+            cuerpo.RootElement.GetProperty("datos").ValueKind.Should().Be(JsonValueKind.Null);
+            LeerErrores(cuerpo.RootElement).Should().Contain("El campo Marca es obligatorio.");
             llamadas.Should().BeEmpty();
         }
 
@@ -52,7 +53,7 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
 
             respuesta.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             using var cuerpo = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
-            LeerMensajes(cuerpo.RootElement).Should().ContainSingle().Which.Should().Be("El valor indicado no es válido.");
+            LeerErrores(cuerpo.RootElement).Should().ContainSingle().Which.Should().Be("fechaFabricacion: El valor indicado no es válido.");
             llamadas.Should().BeEmpty();
         }
 
@@ -68,7 +69,7 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
 
             respuesta.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             using var cuerpo = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
-            LeerMensajes(cuerpo.RootElement).Should().Contain("Hay que enviar un cuerpo en la petición.");
+            LeerErrores(cuerpo.RootElement).Should().Contain("Hay que enviar un cuerpo en la petición.");
             llamadas.Should().BeEmpty();
         }
 
@@ -90,10 +91,53 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
             entrada.ManufactureDate.Should().Be(new DateOnly(2025, 1, 1));
 
             using var cuerpo = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
-            cuerpo.RootElement.GetProperty("matricula").GetString().Should().Be("AB-123");
+            cuerpo.RootElement.GetProperty("exito").GetBoolean().Should().BeTrue();
+            cuerpo.RootElement.GetProperty("mensaje").GetString().Should().Be("Vehículo creado correctamente.");
+            cuerpo.RootElement.GetProperty("errores").ValueKind.Should().Be(JsonValueKind.Null);
+
+            var datos = cuerpo.RootElement.GetProperty("datos");
+            datos.GetProperty("matricula").GetString().Should().Be("AB-123");
 
             // A vehicle is always available when it is created or listed, so a status field would carry no information.
-            cuerpo.RootElement.TryGetProperty("estado", out _).Should().BeFalse();
+            datos.TryGetProperty("estado", out _).Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task AConflictIsAnsweredInsideTheEnvelopeWithTheListOfErrors()
+        {
+            using var servidor = GenericInfrastructureTestServerFixture.CreateServer(servicios =>
+                servicios.AddScoped<IUseCase<CreateVehicleInput>>(proveedor =>
+                    new CasoDeUsoQueDetectaUnaMatriculaRepetida(proveedor.GetRequiredService<ICreateVehicleOutputPort>())));
+            using var cliente = servidor.CreateClient();
+
+            var respuesta = await cliente.PostAsJsonAsync("/api/vehiculos", new { matricula = "ab-123", marca = "Seat", modelo = "Ibiza", fechaFabricacion = "2025-01-01" });
+
+            respuesta.StatusCode.Should().Be(HttpStatusCode.Conflict);
+            using var cuerpo = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
+            cuerpo.RootElement.GetProperty("exito").GetBoolean().Should().BeFalse();
+            cuerpo.RootElement.GetProperty("mensaje").GetString().Should().Be("Conflicto");
+            cuerpo.RootElement.GetProperty("datos").ValueKind.Should().Be(JsonValueKind.Null);
+            LeerErrores(cuerpo.RootElement).Should().ContainSingle().Which.Should().Be("Ya existe un vehículo con la matrícula AB-123.");
+        }
+
+        [Fact]
+        public async Task PostWithAnUnsupportedContentTypeIsAnsweredInsideTheEnvelope()
+        {
+            var llamadas = new List<CreateVehicleInput>();
+            using var servidor = CrearServidor(llamadas);
+            using var cliente = servidor.CreateClient();
+            using var contenido = new StringContent("hola", Encoding.UTF8, "text/plain");
+
+            var respuesta = await cliente.PostAsync(new Uri("/api/vehiculos", UriKind.Relative), contenido);
+
+            respuesta.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
+            respuesta.Content.Headers.ContentType.MediaType.Should().Be("application/json");
+            using var cuerpo = JsonDocument.Parse(await respuesta.Content.ReadAsStringAsync());
+            cuerpo.RootElement.GetProperty("exito").GetBoolean().Should().BeFalse();
+            cuerpo.RootElement.GetProperty("mensaje").GetString().Should().Be("Tipo de contenido no admitido");
+            cuerpo.RootElement.GetProperty("datos").ValueKind.Should().Be(JsonValueKind.Null);
+            LeerErrores(cuerpo.RootElement).Should().ContainSingle();
+            llamadas.Should().BeEmpty();
         }
 
         private static TestServer CrearServidor(List<CreateVehicleInput> llamadas)
@@ -103,20 +147,23 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
                     new CasoDeUsoQueRegistraLlamadas(proveedor.GetRequiredService<ICreateVehicleOutputPort>(), llamadas)));
         }
 
-        private static List<string> LeerCampos(JsonElement raiz)
+        private static List<string> LeerErrores(JsonElement raiz)
         {
-            var campos = raiz.GetProperty("errors").EnumerateObject().Select(campo => campo.Name).ToList();
+            var errores = raiz.GetProperty("errores").EnumerateArray().Select(error => error.GetString()).ToList();
 
-            return campos;
+            return errores;
         }
 
-        private static List<string> LeerMensajes(JsonElement raiz)
+        private sealed class CasoDeUsoQueDetectaUnaMatriculaRepetida(ICreateVehicleOutputPort puertoDeSalida) : IUseCase<CreateVehicleInput>
         {
-            var mensajes = raiz.GetProperty("errors").EnumerateObject()
-                .SelectMany(campo => campo.Value.EnumerateArray().Select(mensaje => mensaje.GetString()))
-                .ToList();
+            public Task Execute(CreateVehicleInput input)
+            {
+                ArgumentNullException.ThrowIfNull(input);
 
-            return mensajes;
+                puertoDeSalida.ConflictHandle($"Ya existe un vehículo con la matrícula {input.LicensePlate.Value}.");
+
+                return Task.CompletedTask;
+            }
         }
 
         private sealed class CasoDeUsoQueRegistraLlamadas(ICreateVehicleOutputPort puertoDeSalida, List<CreateVehicleInput> llamadas) : IUseCase<CreateVehicleInput>

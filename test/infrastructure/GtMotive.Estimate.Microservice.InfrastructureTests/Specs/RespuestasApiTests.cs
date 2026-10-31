@@ -1,8 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using GtMotive.Estimate.Microservice.Api.Models;
 using GtMotive.Estimate.Microservice.InfrastructureTests.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -11,7 +11,7 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
 {
     /// <summary>
     /// Tests del atributo reutilizable RespuestasApi: cada acción debe publicar, mediante los mismos metadatos que lee Swagger,
-    /// exactamente las respuestas que declara su atributo.
+    /// exactamente las respuestas que declara su atributo, todas dentro del sobre RespuestaApi.
     /// </summary>
     public sealed class RespuestasApiTests(GenericInfrastructureTestServerFixture fixture) : InfrastructureTestBase(fixture)
     {
@@ -25,21 +25,23 @@ namespace GtMotive.Estimate.Microservice.InfrastructureTests.Specs
             var accion = BuscarAccion(metodo, ruta);
 
             accion.SupportedResponseTypes.Select(respuesta => respuesta.StatusCode).Should().BeEquivalentTo(codigosEsperados);
-            var todosLosErroresSonProblemas = accion.SupportedResponseTypes
+            var todosLosErroresVanEnElSobre = accion.SupportedResponseTypes
                 .Where(respuesta => respuesta.StatusCode >= 400)
-                .All(respuesta => respuesta.Type == typeof(ProblemDetails));
+                .All(respuesta => respuesta.Type == typeof(RespuestaApi<object>));
 
-            todosLosErroresSonProblemas.Should().BeTrue();
+            todosLosErroresVanEnElSobre.Should().BeTrue();
         }
 
         [Fact]
-        public void TheSuccessResponseCarriesTheTypeGivenToTheAttribute()
+        public void TheSuccessResponseIsTheEnvelopeAroundTheTypeGivenToTheAttribute()
         {
             var alquilar = BuscarAccion("POST", "api/alquileres");
             var crear = BuscarAccion("POST", "api/vehiculos");
+            var listar = BuscarAccion("GET", "api/vehiculos/disponibles");
 
-            alquilar.SupportedResponseTypes.Single(respuesta => respuesta.StatusCode == 201).Type.Should().Be<AlquilerRespuesta>();
-            crear.SupportedResponseTypes.Single(respuesta => respuesta.StatusCode == 201).Type.Should().Be<VehiculoRespuesta>();
+            alquilar.SupportedResponseTypes.Single(respuesta => respuesta.StatusCode == 201).Type.Should().Be<RespuestaApi<AlquilerRespuesta>>();
+            crear.SupportedResponseTypes.Single(respuesta => respuesta.StatusCode == 201).Type.Should().Be<RespuestaApi<VehiculoRespuesta>>();
+            listar.SupportedResponseTypes.Single(respuesta => respuesta.StatusCode == 200).Type.Should().Be<RespuestaApi<List<VehiculoRespuesta>>>();
         }
 
         private ApiDescription BuscarAccion(string metodo, string ruta)

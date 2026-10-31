@@ -37,7 +37,8 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Specs
             var alquiler = Modelo<AlquilerRespuesta>(await Enviar(new AlquilarVehiculoSolicitud { VehiculoId = primero.Id, ClienteId = cliente }), 201);
             (await IdsDisponibles()).Should().NotContain(primero.Id).And.Contain(segundo.Id);
 
-            (await Enviar(new AlquilarVehiculoSolicitud { VehiculoId = segundo.Id, ClienteId = cliente })).Should().BeOfType<ConflictObjectResult>();
+            var conflicto = (await Enviar(new AlquilarVehiculoSolicitud { VehiculoId = segundo.Id, ClienteId = cliente })).Should().BeOfType<ConflictObjectResult>().Subject;
+            conflicto.Value.Should().BeOfType<RespuestaApi<object>>().Which.Errores.Should().ContainSingle();
 
             var devuelto = Modelo<AlquilerRespuesta>(await Enviar(new DevolverVehiculoSolicitud(alquiler.Id)), 200);
             devuelto.Activo.Should().BeFalse();
@@ -119,7 +120,11 @@ namespace GtMotive.Estimate.Microservice.FunctionalTests.Specs
             var resultadoObjeto = resultado.Should().BeAssignableTo<ObjectResult>().Subject;
             resultadoObjeto.StatusCode.Should().Be(codigoEsperado);
 
-            return resultadoObjeto.Value.Should().BeOfType<TModelo>().Subject;
+            var sobre = resultadoObjeto.Value.Should().BeOfType<RespuestaApi<TModelo>>().Subject;
+            sobre.Exito.Should().BeTrue();
+            sobre.Errores.Should().BeNull();
+
+            return sobre.Datos;
         }
 
         private async Task<IActionResult> Enviar<TSolicitud>(TSolicitud solicitud)

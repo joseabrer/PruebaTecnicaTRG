@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using GtMotive.Estimate.Microservice.Api.Filters;
+using GtMotive.Estimate.Microservice.Api.Models;
 using GtMotive.Estimate.Microservice.Api.Respuestas;
 using GtMotive.Estimate.Microservice.Domain;
 using GtMotive.Estimate.Microservice.Domain.Interfaces;
@@ -31,11 +32,13 @@ namespace GtMotive.Estimate.Microservice.UnitTests.Api
             _filter.OnException(context);
 
             var result = context.Result.Should().BeOfType<InternalServerErrorObjectResult>().Subject;
-            var problem = result.Value.Should().BeOfType<ProblemDetails>().Subject;
-            problem.Status.Should().Be(StatusCodes.Status500InternalServerError);
-            problem.Title.Should().Be(Mensajes.TituloErrorInterno);
-            problem.Detail.Should().Be(Mensajes.DetalleErrorInterno);
-            problem.Detail.Should().NotContain("mongo").And.NotContain("refused");
+            result.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            var respuesta = result.Value.Should().BeOfType<RespuestaApi<object>>().Subject;
+            respuesta.Exito.Should().BeFalse();
+            respuesta.Mensaje.Should().Be(Mensajes.TituloErrorInterno);
+            var detalle = respuesta.Errores.Should().ContainSingle().Subject;
+            detalle.Should().Be(Mensajes.DetalleErrorInterno);
+            detalle.Should().NotContain("mongo").And.NotContain("refused");
         }
 
         [Fact]
@@ -46,7 +49,10 @@ namespace GtMotive.Estimate.Microservice.UnitTests.Api
             _filter.OnException(context);
 
             var result = context.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-            result.Value.Should().BeOfType<ProblemDetails>().Which.Detail.Should().Be("El vehículo es demasiado antiguo.");
+            var respuesta = result.Value.Should().BeOfType<RespuestaApi<object>>().Subject;
+            respuesta.Exito.Should().BeFalse();
+            respuesta.Mensaje.Should().Be(Mensajes.TituloSolicitudInvalida);
+            respuesta.Errores.Should().ContainSingle().Which.Should().Be("El vehículo es demasiado antiguo.");
         }
 
         private static ExceptionContext NewContext(Exception exception)
